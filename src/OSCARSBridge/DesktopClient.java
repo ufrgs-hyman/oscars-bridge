@@ -329,6 +329,7 @@ public class DesktopClient {
 
         String url = "http://200.132.1.28:8087/axis2/services/OSCARS";
         String repo = "repo";
+        String temp;
 
         Client oscarsClient = new Client();
         try {
@@ -343,21 +344,26 @@ public class DesktopClient {
             GetTopologyResponseContent response = oscarsClient.getNetworkTopology(request);
 
             CtrlPlaneDomainContent[] domains = response.getTopology().getDomain();
-
             /* Output topology in response */
-            System.out.println("Topology: ");
             for (CtrlPlaneDomainContent d : domains) {
-                System.out.println("Domain: " + d.getId());
+                temp = "#" + d.getId();
+                System.out.println(temp);
                 CtrlPlaneNodeContent[] nodes = d.getNode();
                 for (CtrlPlaneNodeContent n : nodes) {
-                    System.out.println("\tNode:" + n.getId());
+                    temp = "##" + n.getId();
+                    System.out.println(temp);
                     CtrlPlanePortContent[] ports = n.getPort();
                     for (CtrlPlanePortContent p : ports) {
-                        System.out.println("\t\tPort: " + p.getId());
+                        temp = "###" + p.getId()+" " +p.getCapacity()+ " "+p.getGranularity()+ " "+p.getMaximumReservableCapacity()+" "+p.getMaximumReservableCapacity();
+                        System.out.println(temp);
                         CtrlPlaneLinkContent[] links = p.getLink();
                         if (links != null) {
                             for (CtrlPlaneLinkContent l : links) {
-                                System.out.println("\t\t\tLink:" + l.getId());
+                                CtrlPlaneSwcapContent swcap = l.getSwitchingCapabilityDescriptors();
+                                CtrlPlaneSwitchingCapabilitySpecificInfo swcapEsp = swcap.getSwitchingCapabilitySpecificInfo();
+                                String vlan = swcapEsp.getVlanRangeAvailability();
+                                temp = "####" + p.getId()+" " +l.getCapacity()+ " "+l.getGranularity()+ " "+l.getMaximumReservableCapacity()+" "+l.getMaximumReservableCapacity()+" "+swcapEsp.getVlanRangeAvailability();
+                                System.out.println(temp);
                             }
                         }
                     }
@@ -373,6 +379,7 @@ public class DesktopClient {
             System.out.println("Error: " + e.getMessage());
         }
     }
+
 
     public void createTeste() {
         String url = "http://200.132.1.28:8087/axis2/services/OSCARS";
@@ -452,7 +459,7 @@ public class DesktopClient {
         ResCreateContent request = new ResCreateContent();
         request.setBandwidth(100);
         request.setStartTime(System.currentTimeMillis() / 1000);
-        request.setEndTime(System.currentTimeMillis() / 1000 + 60 * 5);
+        request.setEndTime(System.currentTimeMillis() / 1000 + 60 * 60);
         request.setDescription("testes full path");
         request.setPathInfo(pathInfo);
 
@@ -465,10 +472,10 @@ public class DesktopClient {
 
         String vlanSrc = vlanValue;
 
-        if (!vlanValue.equals("")) {
+       if (!vlanValue.equals("")) {
             VlanTag srcVtag = new VlanTag();
             srcVtag.setString(vlanSrc.trim());
-            srcVtag.setTagged(true);
+            srcVtag.setTagged(false);
             layer2Info.setSrcVtag(srcVtag);
         }
 
@@ -477,7 +484,7 @@ public class DesktopClient {
         if (!vlanValue.equals("")) {
             VlanTag destVtag = new VlanTag();
             destVtag.setString(vlanDest.trim());
-            destVtag.setTagged(true);
+            destVtag.setTagged(false);
             layer2Info.setDestVtag(destVtag);
         }
         pathInfo.setLayer2Info(layer2Info);
@@ -569,9 +576,37 @@ public class DesktopClient {
 
         ModifyResContent content = new ModifyResContent();
 
-        int bandwidth = 100;
-        long start = (System.currentTimeMillis() / 1000 + 60 * 2);
-        long end = (System.currentTimeMillis() / 1000 + 60 * 30);
+       // int bandwidth = 100;
+        long start = (System.currentTimeMillis() / 1000 + 60 * 60);
+        long end = (System.currentTimeMillis() / 1000 + 60 * 120);
+        content.setBandwidth(100); //PRECISA ESTAR SETADO E NAO ALTERA DE JEITO NENHUM
+        content.setGlobalReservationId(gri);
+        content.setDescription("modify3"); //PRECISA ESTAR SETADO MAS NAO ALTERA DE JEITO NENHUM
+        content.setStartTime(start); //PRECISA ESTAR SETADO SEMPRE ALTERA, SE NAO DEFINIDO VAI PARA 1969
+        content.setEndTime(end);
+        
+        Layer2Info layer2Info = new Layer2Info();
+        VlanTag srcVtag = new VlanTag();
+        VlanTag destVtag = new VlanTag();
+        PathInfo pathInfo = new PathInfo();
+        
+        srcVtag.setString("192");
+            srcVtag.setTagged(true);
+            layer2Info.setSrcVtag(srcVtag);
+            
+            // same as srcVtag for now
+            destVtag.setString("192");
+            destVtag.setTagged(true);
+            layer2Info.setDestVtag(destVtag);
+            layer2Info.setSrcEndpoint("urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr1:port=3:link=11.3.9.1");
+             layer2Info.setDestEndpoint("urn:ogf:network:domain=oscars2.ufrgs.br:node=vlsr1:port=3:link=11.1.8.1");
+            
+        pathInfo.setPathSetupMode("timer-automatic");
+        
+            pathInfo.setLayer2Info(layer2Info);
+            content.setPathInfo(pathInfo);
+
+
 
         try {
             ModifyResReply response = oscarsClient.modifyReservation(content);
@@ -588,7 +623,8 @@ public class DesktopClient {
 
             System.out.println("\n\nResponse:\n");
             System.out.println("GRI: " + reservation.getGlobalReservationId());
-            System.out.println("Status: " + reservation.getStatus().toString());
+            System.out.println("Status: " + reservation.getStatus().toString()); //INMODIFY
+            //NAO RETORNA OS NOVOS VALORES
             System.out.println("New startTime: " + startTime);
             System.out.println("New endTime: " + endTime);
 

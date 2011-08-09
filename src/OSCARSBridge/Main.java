@@ -57,16 +57,16 @@ public class Main {
 //        for (int ind=0; ind < retorno.length; ind++){
 //            System.out.println(retorno[ind]);
 //        }
-    String res = "oscars7.ufrgs.br-58";
+    String res = "oscars7.ufrgs.br-84";
 
         //teste.createTeste();
         //teste.cancelTeste(res);
         //teste.queryAll(res);
-        teste.createPath(res);
+        //teste.createPath(res);
         //teste.teardownPath(res);
         //teste.refreshPath(res);
         //teste.modifyReservation(res);
-        //teste.getTopology();
+        teste.getTopology();
 
     }
 

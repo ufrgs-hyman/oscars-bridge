@@ -17,12 +17,15 @@ import org.ogf.schema.network.topology.ctrlplane.*;
  */
 public class OSCARSBridge {
 
-    public String createReservation(String oscars_url, String desc,
-            String srcUrn, Boolean isSrcTagged, String srcTag,
-            String destUrn, Boolean isDestTagged, String destTag,
-            String[] hops, int bandwidth, long startTimestamp, long endTimestamp) {
+    public ArrayList<String> createReservation(String oscars_url, String description,
+            String srcUrn, String isSrcTagged, String srcTag,
+            String destUrn, String isDestTagged, String destTag,
+            String path, int bandwidth, String pathSetupMode,
+            long startTimestamp, long endTimestamp) {
 
         String repo = "repo";
+        ArrayList<String> retorno = new ArrayList();
+        String message;
 
         /**
          * pathSetupMode (string)
@@ -46,10 +49,11 @@ public class OSCARSBridge {
 
         PathInfo pathInfo = new PathInfo();
 
-        pathInfo.setPathSetupMode("signal-xml");
+        pathInfo.setPathSetupMode(pathSetupMode);
         Boolean setPath = true;
 
-        if (!hops[0].equals("null")) {
+        if (!path.equals("null")) {
+            String[] hops = path.split(";");
 
             /**
              *  pontos origem e destino devem ser colocados completos nos hops, se o ponto de início/fim for algum hop antes, ele configura somente até o hop discriminado
@@ -61,8 +65,8 @@ public class OSCARSBridge {
 //                "urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr2",
 //                "urn:ogf:network:domain=oscars2.ufrgs.br:node=vlsr1:port=3:link=11.1.8.1"
 //            };
-            CtrlPlanePathContent path = new CtrlPlanePathContent();
-            path.setId("userPath");
+            CtrlPlanePathContent pathContent = new CtrlPlanePathContent();
+            pathContent.setId("userPath");
             boolean hasEro = true;
 
             for (int i = 0; i < hops.length; i++) {
@@ -83,11 +87,11 @@ public class OSCARSBridge {
                     } else {
                         hop.setLinkIdRef(hopId);
                     }
-                    path.addHop(hop);
+                    pathContent.addHop(hop);
                 }
             }
             if (hasEro) {
-                pathInfo.setPath(path);
+                pathInfo.setPath(pathContent);
                 //pathInfo.setPathType("0");
             }
         }
@@ -96,7 +100,7 @@ public class OSCARSBridge {
         request.setBandwidth(bandwidth);
         request.setStartTime(System.currentTimeMillis() / 1000);
         request.setEndTime(System.currentTimeMillis() / 1000 + 60 * 5);
-        request.setDescription(desc);
+        request.setDescription(description);
         request.setPathInfo(pathInfo);
 
         /**
@@ -104,15 +108,40 @@ public class OSCARSBridge {
          * Setando a vlan origem, a vlan destino é a mesma (normalmente)
          *
          */
-        VlanTag srcVtag = new VlanTag();
-        srcVtag.setTagged(isSrcTagged);
-        srcVtag.setString(srcTag);
-        layer2Info.setSrcVtag(srcVtag);
+        if ((!isSrcTagged.equals("null")) || (!srcTag.equals("null"))) {
+            VlanTag srcVtag = new VlanTag();
 
-        VlanTag destVtag = new VlanTag();
-        destVtag.setTagged(isDestTagged);
-        destVtag.setString(destTag);
-        layer2Info.setDestVtag(destVtag);
+            if (!isSrcTagged.equals("null")) {
+                if (isSrcTagged.equals("true")) {
+                    srcVtag.setTagged(true);
+                } else {
+                    srcVtag.setTagged(false);
+                }
+            }
+
+            if (!srcTag.equals("null")) {
+                srcVtag.setString(srcTag);
+            }
+            layer2Info.setSrcVtag(srcVtag);
+        }
+
+        if ((!isDestTagged.equals("null")) || (!destTag.equals("null"))) {
+
+            VlanTag destVtag = new VlanTag();
+
+            if (!isDestTagged.equals("null")) {
+                if (isDestTagged.equals("true")) {
+                    destVtag.setTagged(true);
+                } else {
+                    destVtag.setTagged(false);
+                }
+            }
+
+            if (!destTag.equals("null")) {
+                destVtag.setString(destTag);
+            }
+            layer2Info.setDestVtag(destVtag);
+        }
 
         pathInfo.setLayer2Info(layer2Info);
 
@@ -121,6 +150,9 @@ public class OSCARSBridge {
             oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
             e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
         }
 
         try {
@@ -130,31 +162,45 @@ public class OSCARSBridge {
 
             System.out.println("GRI: " + gri);
             System.out.println("Initial Status: " + status);
-            return gri;
+
+
+            retorno.add(0, "");
+            retorno.add(gri);
+            retorno.add(status);
 
         } catch (RemoteException e) {
             e.printStackTrace();
-
+            message = e.getMessage();
+            retorno.add(0, "Error: RemoteException (" + message + ")");
         } catch (AAAFaultMessage e) {
             e.printStackTrace();
-
-
+            message = e.getMessage();
+            retorno.add(0, "Error: AAAFaultMessage (" + message + ")");
         } catch (Exception e) {
             e.printStackTrace();
-
+            message = e.getMessage();
+            retorno.add(0, "Error: Exception (" + message + ")");
         }
-        return null;
+        return retorno;
     }
 
     public ArrayList<String> queryReservation(String oscars_url, String gri) {
         String repo = "repo";
+
+        ArrayList<String> retorno = new ArrayList();
+        String message;
 
         Client oscarsClient = new Client();
         try {
             oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
             e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
         }
+
+
         try {
             GlobalReservationId request = new GlobalReservationId();
             request.setGri(gri);
@@ -163,31 +209,33 @@ public class OSCARSBridge {
             PathInfo pathInfo = response.getPathInfo();
             CtrlPlanePathContent path = pathInfo.getPath();
             Layer2Info layer2Info = pathInfo.getLayer2Info();
-            Layer3Info layer3Info = pathInfo.getLayer3Info();
-            MplsInfo mplsInfo = pathInfo.getMplsInfo();
+//            Layer3Info layer3Info = pathInfo.getLayer3Info();
+//            MplsInfo mplsInfo = pathInfo.getMplsInfo();
 
-            //Reservation queried = new Reservation();
-            ArrayList<String> queried = new ArrayList();
+            //Reservation retorno = new Reservation();
+
 
             System.out.println("GRI: " + response.getGlobalReservationId());
+            System.out.println("Status: " + response.getStatus());
             System.out.println("Description: " + response.getDescription());
             System.out.println("Login: " + response.getLogin());
-            System.out.println("Status: " + response.getStatus());
+
             System.out.println("Time of request: " + response.getCreateTime());
             System.out.println("Start Time: " + response.getStartTime());
             System.out.println("End Time: " + response.getEndTime());
             System.out.println("Bandwidth: " + response.getBandwidth());
             System.out.println("Path Setup Mode: " + pathInfo.getPathSetupMode());
 
-            queried.add(response.getGlobalReservationId());
-            queried.add(response.getDescription());
-            queried.add(response.getLogin());
-            queried.add(response.getStatus());
-            queried.add(String.valueOf(response.getCreateTime()));
-            queried.add(String.valueOf(response.getStartTime()));
-            queried.add(String.valueOf(response.getEndTime()));
-            queried.add(String.valueOf(response.getBandwidth()));
-            queried.add(pathInfo.getPathSetupMode());
+            retorno.add(response.getGlobalReservationId());
+            retorno.add(response.getStatus());
+            retorno.add(response.getDescription());
+            retorno.add(response.getLogin());
+
+            retorno.add(String.valueOf(response.getCreateTime()));
+            retorno.add(String.valueOf(response.getStartTime()));
+            retorno.add(String.valueOf(response.getEndTime()));
+            retorno.add(String.valueOf(response.getBandwidth()));
+            retorno.add(pathInfo.getPathSetupMode());
 
 
             if (layer2Info != null) {
@@ -198,9 +246,9 @@ public class OSCARSBridge {
                 Boolean isTagged = srcVtag.getTagged();
                 System.out.println("Is Src tagged: " + isTagged.toString());
                 System.out.println("Vlan Src value: " + srcVlan);
-                queried.add(layer2Info.getSrcEndpoint());
-                queried.add(isTagged.toString());
-                queried.add(srcVlan);
+                retorno.add(layer2Info.getSrcEndpoint());
+                retorno.add(isTagged.toString());
+                retorno.add(srcVlan);
                 System.out.println("Destination Endpoint: " + layer2Info.getDestEndpoint());
                 VlanTag destVtag = new VlanTag();
                 destVtag = layer2Info.getDestVtag();
@@ -208,9 +256,9 @@ public class OSCARSBridge {
                 Boolean isTaggedDest = destVtag.getTagged();
                 System.out.println("Is Dest tagged: " + isTaggedDest.toString());
                 System.out.println("Vlan Dest value: " + destVlan);
-                queried.add(layer2Info.getDestEndpoint());
-                queried.add(isTaggedDest.toString());
-                queried.add(destVlan);
+                retorno.add(layer2Info.getDestEndpoint());
+                retorno.add(isTaggedDest.toString());
+                retorno.add(destVlan);
 
             }
 //            if (layer3Info != null) {
@@ -225,68 +273,383 @@ public class OSCARSBridge {
 //                System.out.println("Burst Limit: " + mplsInfo.getBurstLimit());
 //                System.out.println("LSP Class: " + mplsInfo.getLspClass());
 //            }
+
+
             System.out.println("Path: ");
-            String output = "";
+            StringBuilder pathString = new StringBuilder();
 
             for (CtrlPlaneHopContent hop : path.getHop()) {
                 CtrlPlaneLinkContent link = hop.getLink();
                 if (link == null) {
                     //should not happen
-                    output += "no link";
+                    pathString.append("no link");
+                    pathString.append(";");
                     continue;
                 }
-                output += "\t" + link.getId();
-                queried.add(link.getId());
+                pathString.append(link.getId());
+                pathString.append(";");
                 //CtrlPlaneSwcapContent swcap = link.getSwitchingCapabilityDescriptors();
                 //CtrlPlaneSwitchingCapabilitySpecificInfo swcapInfo = swcap.getSwitchingCapabilitySpecificInfo();
                 //output += ", " + swcap.getEncodingType();
 //                if ("ethernet".equals(swcap.getEncodingType())) {
 //                    output += ", " + swcapInfo.getVlanRangeAvailability();
 //                }
-                output += "\n";
             }
-            System.out.println(output);
-            return queried;
+            System.out.println(pathString.toString());
+            retorno.add(pathString.toString());
 
-        } catch (AxisFault e) {
-            e.printStackTrace();
+            retorno.add(0, "");
+
         } catch (RemoteException e) {
             e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: RemoteException (" + message + ")");
         } catch (AAAFaultMessage e) {
             e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AAAFaultMessage (" + message + ")");
         } catch (Exception e) {
             e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: Exception (" + message + ")");
         }
-        return null;
+        return retorno;
     }
 
-    public Boolean cancelReservation(String oscars_url, String gri) {
+    public ArrayList<String> cancelReservation(String oscars_url, String gri) {
 
         String repo = "repo";
+        ArrayList<String> retorno = new ArrayList();
+        String message;
 
         Client oscarsClient = new Client();
         try {
             oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
             e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
         }
 
         GlobalReservationId rt = new GlobalReservationId();
 
         rt.setGri(gri);
+
         try {
-            String response = oscarsClient.cancelReservation(rt);
-            return true;
+            String status = oscarsClient.cancelReservation(rt);
+            System.out.println("Global Reservation Id: " + gri);
+            System.out.println("Cancel Status: " + status);
+            retorno.add(gri);
+            retorno.add(status);
+            retorno.add(0, "");
 
         } catch (RemoteException e) {
             e.printStackTrace();
-
+            message = e.getMessage();
+            retorno.add(0, "Error: RemoteException (" + message + ")");
         } catch (AAAFaultMessage e) {
             e.printStackTrace();
-
+            message = e.getMessage();
+            retorno.add(0, "Error: AAAFaultMessage (" + message + ")");
         } catch (Exception e) {
             e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: Exception (" + message + ")");
         }
-        return false;
+        return retorno;
+    }
+
+    public ArrayList<String> listReservations(String oscars_url, String grisString) {
+        String repo = "repo";
+        String message;
+        ArrayList<String> retorno = new ArrayList();
+
+        String[] gris = grisString.split(";");
+
+        Client oscarsClient = new Client();
+
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
+        }
+
+        ResDetails response = new ResDetails();
+
+        GlobalReservationId rt = new GlobalReservationId();
+
+        String temp;
+
+        for (int ind = 0; ind < gris.length; ind++) {
+
+            rt.setGri(gris[ind]);
+
+            try {
+                response = oscarsClient.queryReservation(rt);
+                temp = response.getStatus();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                message = e.getMessage();
+                temp = "Error: RemoteException (" + message + ")";
+            } catch (AAAFaultMessage e) {
+                e.printStackTrace();
+                message = e.getMessage();
+                temp = "Error: AAAFaultMessage (" + message + ")";
+            } catch (Exception e) {
+                e.printStackTrace();
+                message = e.getMessage();
+                temp = "Error: Exception (" + message + ")";
+            }
+            System.out.println(temp);
+            retorno.add(temp);
+        }
+        retorno.add(0, "");
+        return retorno;
+    }
+
+    public ArrayList<String> modifyReservation(String oscars_url, String gri, long startTimestamp, long endTimestamp) {
+        String repo = "repo";
+        String message;
+        ArrayList<String> retorno = new ArrayList();
+
+        Client oscarsClient = new Client();
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
+        }
+
+        try {
+            ModifyResContent content = new ModifyResContent();
+
+            content.setGlobalReservationId(gri);
+            content.setStartTime(startTimestamp);
+            content.setEndTime(endTimestamp);
+
+            //PARAMETROS INUTEIS
+            content.setBandwidth(100);
+            content.setDescription("nao sera alterada");
+
+            ModifyResReply response = oscarsClient.modifyReservation(content);
+            ResDetails reservation = response.getReservation();
+
+            System.out.println("Response:");
+            System.out.println("GRI: " + reservation.getGlobalReservationId());
+            System.out.println("Status: " + reservation.getStatus().toString());
+            retorno.add(0, "");
+            retorno.add(reservation.getGlobalReservationId());
+            retorno.add(reservation.getStatus().toString());
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: RemoteException (" + message + ")");
+        } catch (AAAFaultMessage e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: AAAFaultMessage (" + message + ")");
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: Exception (" + message + ")");
+        }
+        return retorno;
+    }
+
+    public ArrayList<String> createPath(String oscars_url, String gri) {
+
+        String repo = "repo";
+        String message;
+        ArrayList<String> retorno = new ArrayList();
+
+        Client oscarsClient = new Client();
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
+        }
+
+        CreatePathContent createRequest = new CreatePathContent();
+        createRequest.setGlobalReservationId(gri);
+        try {
+            CreatePathResponseContent createResponse = oscarsClient.createPath(createRequest);
+            System.out.println("Global Reservation Id: " + createResponse.getGlobalReservationId());
+            System.out.println("Create Status: " + createResponse.getStatus());
+            retorno.add(0, "");
+            retorno.add(createResponse.getGlobalReservationId());
+            retorno.add(createResponse.getStatus());
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: RemoteException (" + message + ")");
+        } catch (AAAFaultMessage e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: AAAFaultMessage (" + message + ")");
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: Exception (" + message + ")");
+        }
+        return retorno;
+    }
+
+    public ArrayList<String> teardownPath(String oscars_url, String gri) {
+        String repo = "repo";
+        String message;
+        ArrayList<String> retorno = new ArrayList();
+
+        Client oscarsClient = new Client();
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
+        }
+
+        try {
+            TeardownPathContent teardownRequest = new TeardownPathContent();
+            teardownRequest.setGlobalReservationId(gri);
+            TeardownPathResponseContent teardownResponse = oscarsClient.teardownPath(teardownRequest);
+            System.out.println("Global Reservation Id: " + teardownResponse.getGlobalReservationId());
+            System.out.println("Teardown Status: " + teardownResponse.getStatus());
+            retorno.add(0, "");
+            retorno.add(teardownResponse.getGlobalReservationId());
+            retorno.add(teardownResponse.getStatus());
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: RemoteException (" + message + ")");
+        } catch (AAAFaultMessage e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: AAAFaultMessage (" + message + ")");
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: Exception (" + message + ")");
+        }
+        return retorno;
+    }
+
+    public ArrayList<String> refreshPath(String oscars_url, String gri) {
+        String repo = "repo";
+        String message;
+        ArrayList<String> retorno = new ArrayList();
+
+        Client oscarsClient = new Client();
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
+        }
+
+        try {
+            RefreshPathContent refreshRequest = new RefreshPathContent();
+            refreshRequest.setGlobalReservationId(gri);
+            RefreshPathResponseContent refreshResponse = oscarsClient.refreshPath(refreshRequest);
+            System.out.println("Global Reservation Id: " + refreshResponse.getGlobalReservationId());
+            System.out.println("Refresh Status: " + refreshResponse.getStatus());
+            retorno.add(0, "");
+            retorno.add(refreshResponse.getGlobalReservationId());
+            retorno.add(refreshResponse.getStatus());
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: RemoteException (" + message + ")");
+        } catch (AAAFaultMessage e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: AAAFaultMessage (" + message + ")");
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: Exception (" + message + ")");
+        }
+        return retorno;
+    }
+
+    public ArrayList<String> getTopology(String oscars_url) {
+        String repo = "repo";
+        String message;
+        ArrayList<String> retorno = new ArrayList();
+        String temp;
+
+        Client oscarsClient = new Client();
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0, "Error: AxisFault (" + message + ")");
+            return retorno;
+        }
+
+        try {
+            GetTopologyContent request = new GetTopologyContent();
+            request.setTopologyType("all");
+            GetTopologyResponseContent response = oscarsClient.getNetworkTopology(request);
+            CtrlPlaneDomainContent[] domains = response.getTopology().getDomain();
+
+            for (CtrlPlaneDomainContent d : domains) {
+                temp = "# " + d.getId();
+                retorno.add(temp);
+                System.out.println(temp);
+                CtrlPlaneNodeContent[] nodes = d.getNode();
+                for (CtrlPlaneNodeContent n : nodes) {
+                    temp = "## " + n.getId();
+                    retorno.add(temp);
+                    System.out.println(temp);
+                    CtrlPlanePortContent[] ports = n.getPort();
+                    for (CtrlPlanePortContent p : ports) {
+                        temp = "### " + p.getId()+" " +p.getCapacity()+" "+p.getGranularity()+" "+p.getMaximumReservableCapacity()+" "+p.getMaximumReservableCapacity();
+                        retorno.add(temp);
+                        System.out.println(temp);
+                        CtrlPlaneLinkContent[] links = p.getLink();
+                        if (links != null) {
+                            for (CtrlPlaneLinkContent l : links) {
+                                CtrlPlaneSwcapContent swcap = l.getSwitchingCapabilityDescriptors();
+                                CtrlPlaneSwitchingCapabilitySpecificInfo swcapEsp = swcap.getSwitchingCapabilitySpecificInfo();
+                                temp = "#### " +p.getId()+" " +l.getCapacity()+ " "+l.getGranularity()+ " "+l.getMaximumReservableCapacity()+" "+l.getMaximumReservableCapacity()+" "+swcapEsp.getVlanRangeAvailability();
+                                retorno.add(temp);
+                                System.out.println(temp);
+                            }
+                        }
+                    }
+                }
+            }
+            retorno.add(0,"");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: RemoteException (" + message + ")");
+        } catch (AAAFaultMessage e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: AAAFaultMessage (" + message + ")");
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            retorno.add(0,"Error: Exception (" + message + ")");
+        }
+        return retorno;
     }
 }
