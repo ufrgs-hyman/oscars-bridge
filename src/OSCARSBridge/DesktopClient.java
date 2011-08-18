@@ -327,7 +327,7 @@ public class DesktopClient {
          */
     public void getTopology() {
 
-        String url = "http://200.132.1.28:8087/axis2/services/OSCARS";
+        String url = "http://200.132.1.28:8085/axis2/services/OSCARS";
         String repo = "repo";
         String temp;
 
@@ -346,23 +346,22 @@ public class DesktopClient {
             CtrlPlaneDomainContent[] domains = response.getTopology().getDomain();
             /* Output topology in response */
             for (CtrlPlaneDomainContent d : domains) {
-                temp = "#" + d.getId();
+                temp = d.getId();
                 System.out.println(temp);
                 CtrlPlaneNodeContent[] nodes = d.getNode();
                 for (CtrlPlaneNodeContent n : nodes) {
-                    temp = "##" + n.getId();
+                    temp = n.getId();
                     System.out.println(temp);
                     CtrlPlanePortContent[] ports = n.getPort();
                     for (CtrlPlanePortContent p : ports) {
-                        temp = "###" + p.getId()+" " +p.getCapacity()+ " "+p.getGranularity()+ " "+p.getMaximumReservableCapacity()+" "+p.getMaximumReservableCapacity();
+                        temp = p.getId()+" " +p.getCapacity()+ " "+p.getGranularity()+ " "+p.getMaximumReservableCapacity()+" "+p.getMaximumReservableCapacity();
                         System.out.println(temp);
                         CtrlPlaneLinkContent[] links = p.getLink();
                         if (links != null) {
                             for (CtrlPlaneLinkContent l : links) {
                                 CtrlPlaneSwcapContent swcap = l.getSwitchingCapabilityDescriptors();
                                 CtrlPlaneSwitchingCapabilitySpecificInfo swcapEsp = swcap.getSwitchingCapabilitySpecificInfo();
-                                String vlan = swcapEsp.getVlanRangeAvailability();
-                                temp = "####" + p.getId()+" " +l.getCapacity()+ " "+l.getGranularity()+ " "+l.getMaximumReservableCapacity()+" "+l.getMaximumReservableCapacity()+" "+swcapEsp.getVlanRangeAvailability();
+                                temp = l.getId()+" "+l.getRemoteLinkId()+" "+l.getCapacity()+ " "+l.getGranularity()+ " "+l.getMinimumReservableCapacity()+" "+l.getMaximumReservableCapacity()+" "+swcapEsp.getVlanRangeAvailability();
                                 System.out.println(temp);
                             }
                         }
@@ -382,7 +381,7 @@ public class DesktopClient {
 
 
     public void createTeste() {
-        String url = "http://200.132.1.28:8087/axis2/services/OSCARS";
+        String url = "http://200.132.1.28:8085/axis2/services/OSCARS";
         String repo = "repo";
 
         /**
@@ -402,13 +401,13 @@ public class DesktopClient {
          *
          */
         Layer2Info layer2Info = new Layer2Info();
-        layer2Info.setSrcEndpoint("urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr1:port=3:link=11.3.9.1");
-        layer2Info.setDestEndpoint("urn:ogf:network:domain=oscars2.ufrgs.br:node=vlsr1:port=3:link=11.1.8.1");
+        layer2Info.setSrcEndpoint("urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr1:port=3:link=11.2.1.2");
+        layer2Info.setDestEndpoint("urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr1:port=3:link=11.3.9.1");
 
         PathInfo pathInfo = new PathInfo();
 
-        pathInfo.setPathSetupMode("signal-xml");
-        Boolean setPath = true;
+        pathInfo.setPathSetupMode("timer-automatic");
+        Boolean setPath = false;
 
         if (setPath) {
 
@@ -418,9 +417,14 @@ public class DesktopClient {
              *
              */
             String[] hops = {
-                "urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr1:port=4:link=11.3.11.2",
-                "urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr2",
-                "urn:ogf:network:domain=oscars2.ufrgs.br:node=vlsr1:port=3:link=11.1.8.1"
+"urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr1:port=3:link=11.2.1.2",
+"urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr1:port=5:link=11.2.3.1",
+"urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr3:port=5:link=11.2.3.2",
+"urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr3:port=6:link=11.2.12.1",
+"urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr2:port=5:link=11.2.12.2",
+"urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr2:port=4:link=11.3.11.1",
+"urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr1:port=4:link=11.3.11.2",
+"urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr1:port=3:link=11.3.9.1"
             };
 
 
@@ -457,9 +461,9 @@ public class DesktopClient {
         }
 
         ResCreateContent request = new ResCreateContent();
-        request.setBandwidth(100);
-        request.setStartTime(System.currentTimeMillis() / 1000);
-        request.setEndTime(System.currentTimeMillis() / 1000 + 60 * 60);
+        request.setBandwidth(1000);
+        request.setStartTime(1323370800);
+        request.setEndTime(1323374400);
         request.setDescription("testes full path");
         request.setPathInfo(pathInfo);
 

@@ -54,17 +54,13 @@ public class OSCARSBridge {
 
         if (!path.equals("null")) {
             String[] hops = path.split(";");
-
             /**
-             *  pontos origem e destino devem ser colocados completos nos hops, se o ponto de início/fim for algum hop antes, ele configura somente até o hop discriminado
-             *  pontos intermediários podem ser definidos parcialmente
+             *  pontos origem e destino devem ser colocados completos nos hops,
+             *  se o ponto de início/fim for algum hop antes, ele configura
+             *  somente até o hop discriminado pontos intermediários podem ser
+             *  definidos parcialmente
              *
              */
-//            String[] hops = {
-//                "urn:ogf:network:domain=oscars7.ufrgs.br:node=vlsr1:port=4:link=11.3.11.2",
-//                "urn:ogf:network:domain=oscars5.ufrgs.br:node=vlsr2",
-//                "urn:ogf:network:domain=oscars2.ufrgs.br:node=vlsr1:port=3:link=11.1.8.1"
-//            };
             CtrlPlanePathContent pathContent = new CtrlPlanePathContent();
             pathContent.setId("userPath");
             boolean hasEro = true;
@@ -98,15 +94,15 @@ public class OSCARSBridge {
 
         ResCreateContent request = new ResCreateContent();
         request.setBandwidth(bandwidth);
-        request.setStartTime(System.currentTimeMillis() / 1000);
-        request.setEndTime(System.currentTimeMillis() / 1000 + 60 * 5);
+        request.setStartTime(startTimestamp);
+        request.setEndTime(endTimestamp);
         request.setDescription(description);
         request.setPathInfo(pathInfo);
 
         /**
-         * nao consegue setar vlans diferentes entre origem e destino. Resulta em FAILED. Na wbui tambem nao.
+         * nao consegue setar vlans diferentes entre origem e destino.
+         * Resulta em FAILED. Na wbui tambem nao.
          * Setando a vlan origem, a vlan destino é a mesma (normalmente)
-         *
          */
         if ((!isSrcTagged.equals("null")) || (!srcTag.equals("null"))) {
             VlanTag srcVtag = new VlanTag();
@@ -211,8 +207,6 @@ public class OSCARSBridge {
             Layer2Info layer2Info = pathInfo.getLayer2Info();
 //            Layer3Info layer3Info = pathInfo.getLayer3Info();
 //            MplsInfo mplsInfo = pathInfo.getMplsInfo();
-
-            //Reservation retorno = new Reservation();
 
 
             System.out.println("GRI: " + response.getGlobalReservationId());
@@ -610,17 +604,17 @@ public class OSCARSBridge {
             CtrlPlaneDomainContent[] domains = response.getTopology().getDomain();
 
             for (CtrlPlaneDomainContent d : domains) {
-                temp = "# " + d.getId();
+                temp = d.getId();
                 retorno.add(temp);
                 System.out.println(temp);
                 CtrlPlaneNodeContent[] nodes = d.getNode();
                 for (CtrlPlaneNodeContent n : nodes) {
-                    temp = "## " + n.getId();
+                    temp = n.getId();
                     retorno.add(temp);
                     System.out.println(temp);
                     CtrlPlanePortContent[] ports = n.getPort();
                     for (CtrlPlanePortContent p : ports) {
-                        temp = "### " + p.getId()+" " +p.getCapacity()+" "+p.getGranularity()+" "+p.getMaximumReservableCapacity()+" "+p.getMaximumReservableCapacity();
+                        temp = p.getId()+" " +p.getCapacity()+" "+p.getGranularity()+" "+p.getMaximumReservableCapacity()+" "+p.getMaximumReservableCapacity();
                         retorno.add(temp);
                         System.out.println(temp);
                         CtrlPlaneLinkContent[] links = p.getLink();
@@ -628,7 +622,7 @@ public class OSCARSBridge {
                             for (CtrlPlaneLinkContent l : links) {
                                 CtrlPlaneSwcapContent swcap = l.getSwitchingCapabilityDescriptors();
                                 CtrlPlaneSwitchingCapabilitySpecificInfo swcapEsp = swcap.getSwitchingCapabilitySpecificInfo();
-                                temp = "#### " +p.getId()+" " +l.getCapacity()+ " "+l.getGranularity()+ " "+l.getMaximumReservableCapacity()+" "+l.getMaximumReservableCapacity()+" "+swcapEsp.getVlanRangeAvailability();
+                                temp = l.getId()+" "+l.getRemoteLinkId()+" "+l.getCapacity()+ " "+l.getGranularity()+ " "+l.getMinimumReservableCapacity()+" "+l.getMaximumReservableCapacity()+" "+swcapEsp.getVlanRangeAvailability();
                                 retorno.add(temp);
                                 System.out.println(temp);
                             }
