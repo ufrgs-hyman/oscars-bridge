@@ -5,10 +5,7 @@ import org.apache.axis2.AxisFault;
 import net.es.oscars.client.*;
 import net.es.oscars.wsdlTypes.*;
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import net.es.oscars.oscars.*;
 import org.ogf.schema.network.topology.ctrlplane.*;
 
 /**
@@ -16,6 +13,8 @@ import org.ogf.schema.network.topology.ctrlplane.*;
  * @author pfbiasuz
  */
 public class OSCARSBridge {
+    
+    public static String repoDir = "/home/fanesello/Documents/HYMAN/Certificados/repo";
 
     public ArrayList<String> createReservation(String oscars_url, String description,
             String srcUrn, String isSrcTagged, String srcTag,
@@ -23,7 +22,7 @@ public class OSCARSBridge {
             String path, int bandwidth, String pathSetupMode,
             long startTimestamp, long endTimestamp) {
 
-        String repo = "repo";
+        String repo = repoDir;
         ArrayList<String> retorno = new ArrayList();
         String message;
 
@@ -181,7 +180,7 @@ public class OSCARSBridge {
     }
 
     public ArrayList<String> queryReservation(String oscars_url, String gri) {
-        String repo = "repo";
+        String repo = repoDir;
 
         ArrayList<String> retorno = new ArrayList();
         String message;
@@ -312,7 +311,7 @@ public class OSCARSBridge {
 
     public ArrayList<String> cancelReservation(String oscars_url, String gri) {
 
-        String repo = "repo";
+        String repo = repoDir;
         ArrayList<String> retorno = new ArrayList();
         String message;
 
@@ -355,7 +354,7 @@ public class OSCARSBridge {
     }
 
     public ArrayList<String> listReservations(String oscars_url, String grisString) {
-        String repo = "repo";
+        String repo = repoDir;
         String message;
         ArrayList<String> retorno = new ArrayList();
 
@@ -406,7 +405,7 @@ public class OSCARSBridge {
     }
 
     public ArrayList<String> modifyReservation(String oscars_url, String gri, long startTimestamp, long endTimestamp) {
-        String repo = "repo";
+        String repo = repoDir;
         String message;
         ArrayList<String> retorno = new ArrayList();
 
@@ -459,7 +458,7 @@ public class OSCARSBridge {
 
     public ArrayList<String> createPath(String oscars_url, String gri) {
 
-        String repo = "repo";
+        String repo = repoDir;
         String message;
         ArrayList<String> retorno = new ArrayList();
 
@@ -500,7 +499,7 @@ public class OSCARSBridge {
     }
 
     public ArrayList<String> teardownPath(String oscars_url, String gri) {
-        String repo = "repo";
+        String repo = repoDir;
         String message;
         ArrayList<String> retorno = new ArrayList();
 
@@ -541,7 +540,7 @@ public class OSCARSBridge {
     }
 
     public ArrayList<String> refreshPath(String oscars_url, String gri) {
-        String repo = "repo";
+        String repo = repoDir;
         String message;
         ArrayList<String> retorno = new ArrayList();
 
@@ -582,7 +581,7 @@ public class OSCARSBridge {
     }
 
     public ArrayList<String> getTopology(String oscars_url) {
-        String repo = "repo";
+        String repo = repoDir;
         String message;
         ArrayList<String> retorno = new ArrayList();
         String temp;

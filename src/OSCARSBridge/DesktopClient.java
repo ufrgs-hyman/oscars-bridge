@@ -19,6 +19,8 @@ import org.ogf.schema.network.topology.ctrlplane.*;
  * @author pfbiasuz
  */
 public class DesktopClient {
+    
+    public static String repoDir = "/home/fanesello/Documents/HYMAN/Certificados/repo_felipe";
 
     /* input param
      *  0 url do oscars
@@ -327,8 +329,8 @@ public class DesktopClient {
          */
     public void getTopology() {
 
-        String url = "http://200.132.1.28:8085/axis2/services/OSCARS";
-        String repo = "repo";
+        String url = "http://200.132.1.28:8080/axis2/services/OSCARS";
+        String repo = repoDir;
         String temp;
 
         Client oscarsClient = new Client();
