@@ -5,6 +5,9 @@
 
 package OSCARSBridge;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 /**
  *
  * @author pfbiasuz
@@ -16,31 +19,31 @@ public class Main {
      */
     public static void main(String[] args) {
         DesktopClient teste = new DesktopClient();
-        String[] retorno;
 
+        ArrayList<String> resultArray = new ArrayList();
 
+        String oscars_url = "http://oscars.cipo.rnp.br:8080/axis2/services/OSCARS";
 
-//        long upini = System.currentTimeMillis() / 1000;
-//        long upfim = (System.currentTimeMillis() + 3600) / 1000;
-//
-//        String inicio = String.valueOf(upini);
-//        String fim = String.valueOf(upfim);
-//
-//
-//        String[] ArrStg = {
-//        "http://200.132.1.28:8080/axis2/services/OSCARS",
-//        "urn:ogf:network:domain=ufsc.cipo.rnp.br:node=UFSC-CIPO-RNP-001:port=6:link=*",
-//        "urn:ogf:network:domain=ufsc.cipo.rnp.br:node=UFSC-CIPO-RNP-002:port=6:link=*",
-//        "100",
-//        inicio,
-//        fim,
-//        "urn:ogf:network:domain=ufsc.cipo.rnp.br:node=UFSC-CIPO-RNP-001:port=8:link=*",
-//        "urn:ogf:network:domain=ufsc.cipo.rnp.br:node=UFSC-CIPO-RNP-002:port=2:link=*",
-//        "100",
-//        inicio,
-//        fim
-//        };
-//
+        long upStart = System.currentTimeMillis() / 1000;
+        long upFinish = (System.currentTimeMillis() + 3600) / 1000;
+
+        String start = String.valueOf(upStart);
+        String finish = String.valueOf(upFinish);
+
+        String src = "urn:ogf:network:domain=cipo.rnp.br:node=RJO:port=ge-2/3/4:link=10.0.2.1";
+        String dest = "urn:ogf:network:domain=cipo.rnp.br:node=SPO:port=ge-2/3/4:link=10.0.4.1";
+
+        int bandwidth = 200;
+        
+        String isSrcTagged = "false";
+        String srcTag = "any";
+        String isDestTagged = "false";
+        String destTag = "700";
+
+        resultArray = teste.createReservation(oscars_url, "Reserva Teste", src, isSrcTagged, srcTag, dest, isDestTagged, destTag, "null", bandwidth, "timer-automatic", upStart, upFinish);
+
+        System.out.println(resultArray.toString());
+
 //        retorno = teste.create(ArrStg);
 //        for (int ind=0; ind < retorno.length; ind++){
 //            System.out.println(retorno[ind]);
@@ -66,7 +69,7 @@ public class Main {
         //teste.teardownPath(res);
         //teste.refreshPath(res);
         //teste.modifyReservation(res);
-        teste.getTopology();
+        //teste.getTopology();
 
     }
 

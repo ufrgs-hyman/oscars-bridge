@@ -10,6 +10,7 @@ import net.es.oscars.client.*;
 import net.es.oscars.wsdlTypes.*;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import net.es.oscars.oscars.*;
 import org.ogf.schema.network.topology.ctrlplane.*;
@@ -20,33 +21,27 @@ import org.ogf.schema.network.topology.ctrlplane.*;
  */
 public class DesktopClient {
     
-    public static String repoDir = "/home/fanesello/Documents/HYMAN/Certificados/repo_felipe";
+   public static String repoDir = "/home/lfaganello/Dropbox/HYMAN/Certificados/repo_meican";
 
-    /* input param
-     *  0 url do oscars
-     *  1 name
-     *  1 urn src
-     *  2 urn dst
-     *  3 banda
-     *  4 inicio
-     *  5 fim
-     */
-    public String[] create(String[] arg) {
-        String url = arg[0];
-        String repo = "repo"; //a execução do TOMCAT acontece na pasta $CATALINA_HOME/bin,
-                              //logo a localização dos arquivos devem referenciar essa localização
+    public ArrayList<String> createReservation(String oscars_url, String description,
+            String srcUrn, String isSrcTagged, String srcTag,
+            String destUrn, String isDestTagged, String destTag,
+            String path, int bandwidth, String pathSetupMode,
+            long startTimestamp, long endTimestamp) {
 
-        System.out.println("Exec DIR: " + System.getProperty("user.dir"));
+        String repo = repoDir;
+        ArrayList<String> arrayToReturn = new ArrayList();
+        String message;
 
+        /**
+         * pathSetupMode (string)
+        "timer-automatic" means that the reserved circuit will be instantiated by the scheduler process
+        "signal-xml" means the user will signal to instantiate the reserved circuit
+         * aceita qualquer string no path setup mode
+         * timer-automatic dispara a reserva na hora certa
+         * strings invalidas nao disparam, ficam em pending como se fosse signal-xml, nao gera TOKEN
+         */
         Client oscarsClient = new Client();
-        ResCreateContent request = new ResCreateContent();
-        PathInfo pathInfo = new PathInfo();
-        Layer2Info layer2Info = new Layer2Info();
-
-        pathInfo.setPathSetupMode("signal-xml");
-        request.setDescription("Reservation from QAME");
-        pathInfo.setLayer2Info(layer2Info);
-        request.setPathInfo(pathInfo);
 
         /**
          * ResCreateContent
@@ -54,57 +49,84 @@ public class DesktopClient {
          *          layer2Info
          *
          */
-        /* Set request parameters */
+        Layer2Info layer2Info = new Layer2Info();
+        layer2Info.setSrcEndpoint(srcUrn);
+        layer2Info.setDestEndpoint(destUrn);
+
+        PathInfo pathInfo = new PathInfo();
+
+        pathInfo.setPathSetupMode(pathSetupMode);
+        Boolean setPath = true;
+
+        ResCreateContent request = new ResCreateContent();
+        request.setBandwidth(bandwidth);
+        request.setStartTime(startTimestamp);
+        request.setEndTime(endTimestamp);
+        request.setDescription(description);
+        request.setPathInfo(pathInfo);
+
+        VlanTag srcVtag = new VlanTag();
+
+        if (isSrcTagged.equals("true")) {
+            srcVtag.setTagged(true);
+            srcVtag.setString(srcTag);
+        } else {
+            srcVtag.setTagged(false);
+            srcVtag.setString("0");
+        }
+        layer2Info.setSrcVtag(srcVtag);
+
+        VlanTag destVtag = new VlanTag();
+
+        if (isDestTagged.equals("true")) {
+            destVtag.setTagged(true);
+            destVtag.setString(destTag);
+        } else {
+            destVtag.setTagged(false);
+            destVtag.setString("0");
+        }
+        layer2Info.setDestVtag(destVtag);
+
+        pathInfo.setLayer2Info(layer2Info);
+
+
         try {
-            oscarsClient.setUp(true, url, repo); //consome 1/3 do tempo aproximadamente
+            oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
-            System.out.println("AxisFault from Create Reservations");
             e.printStackTrace();
-            String[] ret = new String[1];
-            ret[0] = "Error: AxisFault from Create Reservations";
-            return ret;
+            message = e.getMessage();
+            arrayToReturn.add(0, "Error: AxisFault (" + message + ")");
+            return arrayToReturn;
         }
 
-        String[] gris = new String[(arg.length - 1) / 5];
-        int griInd = 0;
+        try {
+            CreateReply response = oscarsClient.createReservation(request);
+            String gri = response.getGlobalReservationId();
+            String status = response.getStatus();
 
-        for (int i = 1; i < arg.length; i++) {
-            layer2Info.setSrcEndpoint(arg[i++]);
-            layer2Info.setDestEndpoint(arg[i++]);
-            request.setBandwidth(Integer.parseInt(arg[i++]));
-            request.setStartTime(Long.parseLong(arg[i++]));
-            request.setEndTime(Long.parseLong(arg[i]));
-            try {
-                CreateReply response = oscarsClient.createReservation(request); //consome 2/3 do tempo aproximadamente
-                gris[griInd] = response.getGlobalReservationId();
-                //String status = response.getStatus();
+            System.out.println("GRI: " + gri);
+            System.out.println("Initial Status: " + status);
 
-            } catch (RemoteException e) {
-                System.out.println("RemoteException from Create Reservations");
-                e.printStackTrace();
-                gris[griInd] = "Error: RemoteException from Create Reservations";
 
-            } catch (AAAFaultMessage e) {
-                System.out.println("AAAFaultMessage from Create Reservations");
-                e.printStackTrace();
-                gris[griInd] = "Error: AAAFaultMessage from Create Reservations";
+            arrayToReturn.add(0, "ok");
+            arrayToReturn.add(gri);
+            arrayToReturn.add(status);
 
-            } catch (Exception e) {
-                System.out.println("Exception from Create Reservations");
-                e.printStackTrace();
-                gris[griInd] = "Error: Exception from Create Reservations";
-
-            }
-            griInd++;
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            arrayToReturn.add(0, "Error: RemoteException (" + message + ")");
+        } catch (AAAFaultMessage e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            arrayToReturn.add(0, "Error: AAAFaultMessage (" + message + ")");
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = e.getMessage();
+            arrayToReturn.add(0, "Error: Exception (" + message + ")");
         }
-        oscarsClient.cleanUp();
-        return gris;
-        /**
-         * <gri0>
-         * <gri1
-         *
-         *
-         */
+
+        return arrayToReturn;
     }
 
     public String[] cancel(String[] gris) {
