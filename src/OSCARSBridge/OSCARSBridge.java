@@ -645,4 +645,74 @@ public class OSCARSBridge {
         }
         return retorno;
     }
+    public ArrayList<String> listAllReservations(String oscars_url, String status) {
+        String repo = repoDir;
+        ArrayList <String> retorno = new ArrayList();
+        Client oscarsClient = new Client();
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            System.out.println("AxisFault: " + e.getMessage());
+        }
+        try {
+            ListRequest request = new ListRequest();
+            request.addResStatus(status);
+            ListReply reply = oscarsClient.listReservations(request);
+            ResDetails[] details = reply.getResDetails();
+            int numFilteredResults = 0;
+            for (ResDetails detail : details) {
+                PathInfo pathInfo = detail.getPathInfo();
+                CtrlPlanePathContent path = pathInfo.getPath();
+                Layer2Info layer2Info = pathInfo.getLayer2Info();
+                Layer3Info layer3Info = pathInfo.getLayer3Info();
+                MplsInfo mplsInfo = pathInfo.getMplsInfo();
+
+                String output = "";
+                String startTime = String.valueOf(detail.getStartTime());
+                String endTime = String.valueOf(detail.getEndTime());
+                String bandwidth = String.valueOf(detail.getBandwidth());
+              
+                
+                retorno.add(detail.getGlobalReservationId());
+                retorno.add(startTime);
+                retorno.add(endTime);
+                retorno.add(bandwidth);
+                retorno.add(detail.getDescription());
+                
+                if(layer2Info != null){
+                    String srcVlan = String.valueOf((layer2Info.getSrcVtag()));
+                    String destVlan = String.valueOf(layer2Info.getDestVtag());
+                    
+                    retorno.add(layer2Info.getSrcEndpoint());
+                    retorno.add(layer2Info.getDestEndpoint());
+                    retorno.add(srcVlan);
+                    retorno.add(destVlan);
+                }
+                if(layer3Info != null){
+                    String srcPort = String.valueOf(layer3Info.getSrcIpPort());
+                    String destPort = String.valueOf(layer3Info.getDestIpPort());
+                    
+                    retorno.add(layer3Info.getSrcHost());
+                    retorno.add(layer3Info.getDestHost());
+                    retorno.add(srcPort);
+                    retorno.add(destPort);
+                }
+                if(mplsInfo != null){
+                    String burstLimit = String.valueOf(mplsInfo.getBurstLimit());
+                    
+                    retorno.add(burstLimit);
+                    retorno.add(mplsInfo.getLspClass());
+                }
+            }
+            
+        } catch (AxisFault e) {
+            System.out.println("AxisFault: " + e.getMessage());
+        } catch (RemoteException e) {
+            System.out.println("Remote Exception: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+    return retorno;
+    }
 }
+
