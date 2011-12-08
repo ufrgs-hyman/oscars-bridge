@@ -14,7 +14,12 @@ import org.ogf.schema.network.topology.ctrlplane.*;
  */
 public class OSCARSBridge {
     
-    public static String repoDir = "/home/fanesello/Documents/HYMAN/Certificados/repo";
+    public static String repoDir = "repo";
+    
+    /*public void printAbsolutePath() {
+        File repo_file = new File(repoDir);
+        System.out.println("--Diretorio absoluto: " + repo_file.getAbsolutePath());
+    }*/
 
     public ArrayList<String> createReservation(String oscars_url, String description,
             String srcUrn, String isSrcTagged, String srcTag,
@@ -98,45 +103,27 @@ public class OSCARSBridge {
         request.setDescription(description);
         request.setPathInfo(pathInfo);
 
-        /**
-         * nao consegue setar vlans diferentes entre origem e destino.
-         * Resulta em FAILED. Na wbui tambem nao.
-         * Setando a vlan origem, a vlan destino é a mesma (normalmente)
-         */
-        if ((!isSrcTagged.equals("null")) || (!srcTag.equals("null"))) {
-            VlanTag srcVtag = new VlanTag();
+        VlanTag srcVtag = new VlanTag();
 
-            if (!isSrcTagged.equals("null")) {
-                if (isSrcTagged.equals("true")) {
-                    srcVtag.setTagged(true);
-                } else {
-                    srcVtag.setTagged(false);
-                }
-            }
-
-            if (!srcTag.equals("null")) {
-                srcVtag.setString(srcTag);
-            }
-            layer2Info.setSrcVtag(srcVtag);
+        if (isSrcTagged.equals("true")) {
+            srcVtag.setTagged(true);
+            srcVtag.setString(srcTag);
+        } else {
+            srcVtag.setTagged(false);
+            srcVtag.setString("0");
         }
+        layer2Info.setSrcVtag(srcVtag);
 
-        if ((!isDestTagged.equals("null")) || (!destTag.equals("null"))) {
+        VlanTag destVtag = new VlanTag();
 
-            VlanTag destVtag = new VlanTag();
-
-            if (!isDestTagged.equals("null")) {
-                if (isDestTagged.equals("true")) {
-                    destVtag.setTagged(true);
-                } else {
-                    destVtag.setTagged(false);
-                }
-            }
-
-            if (!destTag.equals("null")) {
-                destVtag.setString(destTag);
-            }
-            layer2Info.setDestVtag(destVtag);
+        if (isDestTagged.equals("true")) {
+            destVtag.setTagged(true);
+            destVtag.setString(destTag);
+        } else {
+            destVtag.setTagged(false);
+            destVtag.setString("0");
         }
+        layer2Info.setDestVtag(destVtag);
 
         pathInfo.setLayer2Info(layer2Info);
 
@@ -586,8 +573,9 @@ public class OSCARSBridge {
         ArrayList<String> retorno = new ArrayList();
         String temp;
 
-        Client oscarsClient = new Client();
+        Client oscarsClient;
         try {
+            oscarsClient = new Client();
             oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
             e.printStackTrace();
@@ -645,21 +633,26 @@ public class OSCARSBridge {
         }
         return retorno;
     }
+    
     public ArrayList<String> listAllReservations(String oscars_url, String status) {
         String repo = repoDir;
-        ArrayList <String> retorno = new ArrayList();
+        
+        ArrayList<String> retorno = new ArrayList();
+        
         Client oscarsClient = new Client();
         try {
             oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
             System.out.println("AxisFault: " + e.getMessage());
         }
+        
         try {
             ListRequest request = new ListRequest();
             request.addResStatus(status);
             ListReply reply = oscarsClient.listReservations(request);
             ResDetails[] details = reply.getResDetails();
             int numFilteredResults = 0;
+            
             for (ResDetails detail : details) {
                 PathInfo pathInfo = detail.getPathInfo();
                 CtrlPlanePathContent path = pathInfo.getPath();
@@ -671,40 +664,39 @@ public class OSCARSBridge {
                 String startTime = String.valueOf(detail.getStartTime());
                 String endTime = String.valueOf(detail.getEndTime());
                 String bandwidth = String.valueOf(detail.getBandwidth());
-              
-                
+
                 retorno.add(detail.getGlobalReservationId());
                 retorno.add(startTime);
                 retorno.add(endTime);
                 retorno.add(bandwidth);
                 retorno.add(detail.getDescription());
-                
-                if(layer2Info != null){
+
+                if (layer2Info != null) {
                     String srcVlan = String.valueOf((layer2Info.getSrcVtag()));
                     String destVlan = String.valueOf(layer2Info.getDestVtag());
-                    
+
                     retorno.add(layer2Info.getSrcEndpoint());
                     retorno.add(layer2Info.getDestEndpoint());
                     retorno.add(srcVlan);
                     retorno.add(destVlan);
                 }
-                if(layer3Info != null){
+                if (layer3Info != null) {
                     String srcPort = String.valueOf(layer3Info.getSrcIpPort());
                     String destPort = String.valueOf(layer3Info.getDestIpPort());
-                    
+
                     retorno.add(layer3Info.getSrcHost());
                     retorno.add(layer3Info.getDestHost());
                     retorno.add(srcPort);
                     retorno.add(destPort);
                 }
-                if(mplsInfo != null){
+                if (mplsInfo != null) {
                     String burstLimit = String.valueOf(mplsInfo.getBurstLimit());
-                    
+
                     retorno.add(burstLimit);
                     retorno.add(mplsInfo.getLspClass());
                 }
             }
-            
+
         } catch (AxisFault e) {
             System.out.println("AxisFault: " + e.getMessage());
         } catch (RemoteException e) {
@@ -712,7 +704,9 @@ public class OSCARSBridge {
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-    return retorno;
+
+        return retorno;
     }
+    
 }
 

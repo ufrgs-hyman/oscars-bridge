@@ -4,8 +4,6 @@
  */
 package OSCARSBridge;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.es.oscars.notify.ws.AAAFaultMessage;
 import org.apache.axis2.AxisFault;
 import net.es.oscars.client.*;
@@ -23,7 +21,7 @@ import org.ogf.schema.network.topology.ctrlplane.*;
  */
 public class DesktopClient {
     
-   public static String repoDir = "/Users/yui/dev/repo/";
+    public static String repoDir = "/home/fanesello/Documents/HYMAN/Certificados/repo";
 
     public ArrayList<String> createReservation(String oscars_url, String description,
             String srcUrn, String isSrcTagged, String srcTag,
@@ -409,7 +407,6 @@ public class DesktopClient {
     }
 
     public void listAllReservations(String oscars_url, String status) {
-        String url = "http://200.132.1.28:8085/axis2/services/OSCARS";
         String repo = repoDir;
 
         Client oscarsClient = new Client();
