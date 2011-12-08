@@ -4,6 +4,8 @@
  */
 package OSCARSBridge;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.es.oscars.notify.ws.AAAFaultMessage;
 import org.apache.axis2.AxisFault;
 import net.es.oscars.client.*;
@@ -21,7 +23,7 @@ import org.ogf.schema.network.topology.ctrlplane.*;
  */
 public class DesktopClient {
     
-   public static String repoDir = "/home/lfaganello/Dropbox/HYMAN/Certificados/repo_meican";
+   public static String repoDir = "/Users/yui/dev/repo/";
 
     public ArrayList<String> createReservation(String oscars_url, String description,
             String srcUrn, String isSrcTagged, String srcTag,
@@ -249,11 +251,12 @@ public class DesktopClient {
 
     public void queryAll(String gri) {
         String url = "http://200.132.1.28:8085/axis2/services/OSCARS";
-        String repo = "repo";
+        String oscars_url = "http://oscars.cipo.rnp.br:8080/axis2/services/OSCARS";
+        String repo = repoDir;
 
         Client oscarsClient = new Client();
         try {
-            oscarsClient.setUp(true, url, repo);
+            oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
             System.out.println("AxisFault from Query Reservations");
             String[] ret = new String[1];
@@ -349,15 +352,16 @@ public class DesktopClient {
          * "adjacentdomains","delta" or "internetworklinks" will be supported as well.
          * esses valores funcionam como ALL - nao funcionam adequadamente
          */
-    public void getTopology() {
+    public void getTopology(String oscars_url) {
 
         String url = "http://200.132.1.28:8080/axis2/services/OSCARS";
         String repo = repoDir;
         String temp;
-
+        
         Client oscarsClient = new Client();
         try {
-            oscarsClient.setUp(true, url, repo);
+            //oscarsClient.setUp(true, url, repo);
+            oscarsClient.setUp(true, oscars_url, repo);
         } catch (AxisFault e) {
             e.printStackTrace();
         }
@@ -392,6 +396,7 @@ public class DesktopClient {
                     }
                 }
             }
+            System.out.println(response);
         } catch (AAAFaultMessage e) {
             System.out.println("AAA Error: " + e.getMessage());
         } catch (BSSFaultMessage e) {
@@ -403,6 +408,61 @@ public class DesktopClient {
         }
     }
 
+    public void listAllReservations(String oscars_url, String status) {
+        String url = "http://200.132.1.28:8085/axis2/services/OSCARS";
+        String repo = repoDir;
+
+        Client oscarsClient = new Client();
+        try {
+            oscarsClient.setUp(true, oscars_url, repo);
+        } catch (AxisFault e) {
+            System.out.println("AxisFault: " + e.getMessage());
+        }
+        try {
+            ListRequest request = new ListRequest();
+            request.addResStatus(status);
+            ListReply reply = oscarsClient.listReservations(request);
+            ResDetails[] details = reply.getResDetails();
+            int numFilteredResults = 0;
+            for (ResDetails detail : details) {
+                PathInfo pathInfo = detail.getPathInfo();
+                CtrlPlanePathContent path = pathInfo.getPath();
+                Layer2Info layer2Info = pathInfo.getLayer2Info();
+                Layer3Info layer3Info = pathInfo.getLayer3Info();
+                MplsInfo mplsInfo = pathInfo.getMplsInfo();
+
+                String output = "";
+                output += "GRI: " + detail.getGlobalReservationId() + "\n";
+                output += "Start Time: " + detail.getStartTime() + "\n";
+                output += "End Time: " + detail.getEndTime() + "\n";
+                output += "Bandwidth: " + detail.getBandwidth() + "\n";
+                output += "Description: " + detail.getDescription() + "\n";
+                if(layer2Info != null){
+                    output += "Source Endpoint: " + layer2Info.getSrcEndpoint() + "\n";
+                    output += "Destination Endpoint: " + layer2Info.getDestEndpoint() + "\n";
+                    output += "Source VLAN: " + layer2Info.getSrcVtag() + "\n";
+                    output += "Destination VLAN: " + layer2Info.getDestVtag() + "\n";
+                }
+                if(layer3Info != null){
+                    output += "Source Host: " + layer3Info.getSrcHost() + "\n";
+                    output += "Destination Host: " + layer3Info.getDestHost() + "\n";
+                    output += "Source L4 Port: " + layer3Info.getSrcIpPort() + "\n";
+                    output += "Destination L4 Port: " + layer3Info.getDestIpPort() + "\n";
+                }
+                if(mplsInfo != null){
+                    output += "Burst Limit: " + mplsInfo.getBurstLimit() + "\n";
+                    output += "LSP Class: " + mplsInfo.getLspClass() + "\n";
+                }
+                System.out.println(output);
+            }
+        } catch (AxisFault e) {
+            System.out.println("AxisFault: " + e.getMessage());
+        } catch (RemoteException e) {
+            System.out.println("Remote Exception: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+    }
 
     public void createTeste() {
         String url = "http://200.132.1.28:8085/axis2/services/OSCARS";
