@@ -1,8 +1,10 @@
 package OSCARSBridge;
 
 import net.es.oscars.notify.ws.AAAFaultMessage;
+import net.es.oscars.oscars.BSSFaultMessage;
+
 import org.apache.axis2.AxisFault;
-import net.es.oscars.client.*;
+import net.es.oscars.client.Client;
 import net.es.oscars.wsdlTypes.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -189,6 +191,7 @@ public class OSCARSBridge {
             request.setGri(gri);
 
             ResDetails response = oscarsClient.queryReservation(request);
+            
             PathInfo pathInfo = response.getPathInfo();
             CtrlPlanePathContent path = pathInfo.getPath();
             Layer2Info layer2Info = pathInfo.getLayer2Info();
@@ -289,6 +292,11 @@ public class OSCARSBridge {
             e.printStackTrace();
             message = e.getMessage();
             retorno.add(0, "Error: AAAFaultMessage (" + message + ")");
+        } catch (BSSFaultMessage e) {
+            e.printStackTrace();
+            message = e.getFaultMessage().getMsg();
+            System.out.println("Error: BSSFaultMessage (" + message + ")");
+            retorno.add(0, "Error: BSSFaultMessage (" + message + ")");
         } catch (Exception e) {
             e.printStackTrace();
             message = e.getMessage();
