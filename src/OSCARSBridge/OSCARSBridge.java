@@ -163,6 +163,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0, "Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -293,6 +294,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0, "Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -337,6 +339,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0, "Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -388,6 +391,7 @@ public class OSCARSBridge {
             retorno.add(temp);
         }
         retorno.add(0, "");
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -440,6 +444,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0,"Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -482,6 +487,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0,"Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -523,6 +529,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0,"Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -564,6 +571,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0,"Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
 
@@ -631,6 +639,7 @@ public class OSCARSBridge {
             message = e.getMessage();
             retorno.add(0,"Error: Exception (" + message + ")");
         }
+        oscarsClient.cleanUp();
         return retorno;
     }
     
@@ -704,7 +713,7 @@ public class OSCARSBridge {
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-
+        oscarsClient.cleanUp();
         return retorno;
     }
     
