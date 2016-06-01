@@ -4,8 +4,37 @@
   <groupId>br.rnp.meican</groupId>
   <artifactId>oscars-bridge</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.0</version>
-  <name>oscars-bridge</name>
+  <version>2.0.0</version>
+  <name>OSCARS Bridge</name>
+  <properties>
+        <java.version>1.6</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <cxf.version>2.2.5</cxf.version>        
+    </properties>
+    
+    <build>  
+ 	<plugins>  
+	  <plugin>  
+	   <groupId>org.codehaus.mojo</groupId>  
+	   <artifactId>exec-maven-plugin</artifactId>  
+	   <version>1.5.0</version>  
+	   <executions>  
+	    <execution>  
+	     <phase>test</phase>  
+	     <goals>  
+	      <goal>java</goal>  
+	     </goals>  
+	     <configuration>  
+	      <mainClass>br.rnp.meican.oscars.App</mainClass>  
+	     </configuration>  
+	    </execution>  
+	   </executions>  
+	  </plugin>  
+	 </plugins>  
+	</build>  
+  
   <dependencies>
     <!-- ESNET libs 
      mvn install:install-file -Dfile=oscars-client-0.0.1-SNAPSHOT.jar -DgroupId=net.es.oscars -Dversion=0.0.1-SNAPSHOT -DartifactId=OSCARS -Dpackaging=jar -DgeneratePom=true
@@ -21,7 +50,6 @@
         <artifactId>common-soap</artifactId>
         <version>0.0.1-SNAPSHOT</version>
 	</dependency>
-	
 	
 	<dependency>
 	    <groupId>aopalliance</groupId>
@@ -62,72 +90,72 @@
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-api</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-common-schemas</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-common-utilities</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 		<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-bindings-soap</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-bindings-xml</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 		<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-core</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 		<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-databinding-jaxb</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-frontend-jaxws</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-frontend-simple</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-transports-http</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 		<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-ws-addr</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 		<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-ws-policy</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 		<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-rt-ws-security</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 		<dependency>
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-tools-common</artifactId>
-	    <version>2.2.5</version>
+	    <version>${cxf.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.geronimo.specs</groupId>
