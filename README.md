@@ -18,7 +18,9 @@ mvn install:install-file -Dfile=common-soap-0.0.1-SNAPSHOT.jar -DgroupId=net.es.
 
 ####Usage
 
-TODO
+```
+mvn exec:java -Dexec.mainClass="br.rnp.meican.oscars.App"
+```
 
 ####Development with Eclipse IDE
 
