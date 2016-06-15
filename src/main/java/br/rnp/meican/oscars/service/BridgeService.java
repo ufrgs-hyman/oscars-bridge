@@ -31,26 +31,34 @@ import br.rnp.meican.oscars.domain.Circuit;
 @Service
 @Scope("singleton")
 public class BridgeService {
-	
+
 	private String providerUrl; 
 
+	/**
+	 * Build a service based on application arguments.
+	 * 
+	 * url - OSCARS url
+	 * ok - OSCARS Keystore 
+	 * ou - OSCARS Keystore user 
+	 * op - OSCARS Keystore password 
+	 * lk - localhost Keystore 
+	 * lp - localhost Keystore password
+	 */
 	@Autowired
-    public BridgeService(Environment env) {
-		this.configure(
-				env.getProperty("url"), 
-				env.getProperty("ck"),
-				env.getProperty("cu"),
-				env.getProperty("cp"),
-				env.getProperty("sk"),
-				env.getProperty("sp"));
+	public BridgeService(Environment env) {
+		this.configure(env.getProperty("url"), env.getProperty("ck"),
+				env.getProperty("cu"), env.getProperty("cp"),
+				env.getProperty("sk"), env.getProperty("sp"));
 	}
-	
-	public void configure(String providerUrl, String clientKeystore, String clientUser, 
-			String clientPass, String serverKeystore, String serverPass) {
+
+	public void configure(String providerUrl, String clientKeystore,
+			String clientUser, String clientPass, String serverKeystore,
+			String serverPass) {
 		this.providerUrl = providerUrl;
 		// Setup keystores
 		try {
-			OSCARSClientConfig.setClientKeystore(clientUser, clientKeystore, clientPass);
+			OSCARSClientConfig.setClientKeystore(clientUser, clientKeystore,
+					clientPass);
 			OSCARSClientConfig.setSSLKeyStore(serverKeystore, serverPass);
 		} catch (OSCARSClientException e) {
 			e.printStackTrace();
@@ -114,7 +122,8 @@ public class BridgeService {
 												.getVlanRangeAvailability();
 									}
 								}
-								circuit.addPoint(link.getId() + ":vlan=" + vlanRangeAvail);
+								circuit.addPoint(link.getId() + ":vlan="
+										+ vlanRangeAvail);
 							} else {
 								System.out.println(ctrlHop.getLinkIdRef());
 							}
