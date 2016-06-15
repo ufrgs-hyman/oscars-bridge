@@ -18,9 +18,13 @@ mvn install:install-file -Dfile=common-soap-0.0.1-SNAPSHOT.jar -DgroupId=net.es.
 
 ####Usage
 
+Start the web service:
+
 ```
-mvn exec:java -Dexec.mainClass="br.rnp.meican.oscars.App"
+mvn spring-boot:run
 ```
+
+Access http://localhost:8080/oscars-bridge/circuits to get all active or future circuits from the configured OSCARS instance in JSON format.
 
 ####Development with Eclipse IDE
 
