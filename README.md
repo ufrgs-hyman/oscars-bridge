@@ -34,11 +34,11 @@ Access http://localhost:8080/oscars-bridge/circuits to get all active or future 
 
 #####Required parameters
 
-ok - OSCARS Keystore
-ou - OSCARS Keystore user
-op - OSCARS Keystore password
-lk - localhost Keystore
-lp - localhost Keystore password
+- ok - OSCARS Keystore
+- ou - OSCARS Keystore user
+- op - OSCARS Keystore password
+- lk - localhost Keystore
+- lp - localhost Keystore password
 
 ####Development with Eclipse IDE
 
