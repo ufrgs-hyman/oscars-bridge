@@ -46,9 +46,9 @@ public class BridgeService {
 	 */
 	@Autowired
 	public BridgeService(Environment env) {
-		this.configure(env.getProperty("url"), env.getProperty("ck"),
-				env.getProperty("cu"), env.getProperty("cp"),
-				env.getProperty("sk"), env.getProperty("sp"));
+		this.configure(env.getProperty("url"), env.getProperty("ok"),
+				env.getProperty("ou"), env.getProperty("op"),
+				env.getProperty("lk"), env.getProperty("lp"));
 	}
 
 	public void configure(String providerUrl, String clientKeystore,
