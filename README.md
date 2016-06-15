@@ -18,13 +18,27 @@ mvn install:install-file -Dfile=common-soap-0.0.1-SNAPSHOT.jar -DgroupId=net.es.
 
 ####Usage
 
-Start the web service:
+Build the application:
 
 ```
-mvn spring-boot:run
+mvn install
+```
+
+Start the application:
+
+```
+java -jar target/oscars-bridge-2.0.0.jar --url=https://localhost:9001/OSCARS/ --ok=oscars.jks --ou=user --op=pass --lk=localhost.jks --lp=pass
 ```
 
 Access http://localhost:8080/oscars-bridge/circuits to get all active or future circuits from the configured OSCARS instance in JSON format.
+
+#####Required parameters
+
+ok - OSCARS Keystore
+ou - OSCARS Keystore user
+op - OSCARS Keystore password
+lk - localhost Keystore
+lp - localhost Keystore password
 
 ####Development with Eclipse IDE
 
