@@ -4,10 +4,11 @@ Module for easy communication with [OSCARS](https://github.com/esnet/oscars) ins
 
 ####Requirements
 
-- Java 1.7+
+- Java 1.6+
 - Maven 2+
+- OSCARS libs
 
-####ESnet libs 
+####Required OSCARS libs 
 
 Currently that step is manual, enter the lib folder from the project root and execute:
 
@@ -32,7 +33,13 @@ java -jar target/oscars-bridge-2.0.0.jar --url=https://localhost:9001/OSCARS/ --
 
 Access http://localhost:8080/oscars-bridge/circuits to get all active or future circuits from the configured OSCARS instance in JSON format.
 
-#####Required parameters
+Starting the app in background:
+
+```
+java -jar target/oscars-bridge-2.0.0.jar --url=https://localhost:9001/OSCARS/ --ok=oscars.jks --ou=user --op=pass --lk=localhost.jks --lp=pass > /var/log/bridge.log 2>&1 &
+```
+
+#####Application required parameters
 
 - ok - OSCARS Keystore
 - ou - OSCARS Keystore user
