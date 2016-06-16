@@ -14,9 +14,9 @@ import br.rnp.meican.oscars.service.BridgeService;
  */
 @RestController
 public class BridgeController {
-	
-	@Autowired
-	private BridgeService service;
+    
+    @Autowired
+    private BridgeService service;
 
     @RequestMapping("/oscars-bridge/circuits")
     public ArrayList<Circuit> getCircuits() {
