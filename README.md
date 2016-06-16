@@ -28,7 +28,7 @@ mvn install
 Start the application:
 
 ```
-java -jar target/oscars-bridge-2.0.0.jar --url=https://localhost:9001/OSCARS/ --ok=oscars.jks --ou=user --op=pass --lk=localhost.jks --lp=pass
+java -jar target/oscars-bridge-2.0.1.jar --url=https://localhost:9001/OSCARS/ --ok=oscars.jks --ou=user --op=pass --lk=localhost.jks --lp=pass
 ```
 
 Access http://localhost:8080/oscars-bridge/circuits to get all active or future circuits from the configured OSCARS instance in JSON format.
@@ -36,7 +36,7 @@ Access http://localhost:8080/oscars-bridge/circuits to get all active or future 
 Starting the app in background:
 
 ```
-java -jar target/oscars-bridge-2.0.0.jar --url=https://localhost:9001/OSCARS/ --ok=oscars.jks --ou=user --op=pass --lk=localhost.jks --lp=pass > /var/log/bridge.log 2>&1 &
+java -jar target/oscars-bridge-2.0.1.jar --url=https://localhost:9001/OSCARS/ --ok=oscars.jks --ou=user --op=pass --lk=localhost.jks --lp=pass > /var/log/bridge.log 2>&1 &
 ```
 
 #####Application required parameters
