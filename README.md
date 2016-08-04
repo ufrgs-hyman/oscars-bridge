@@ -51,7 +51,7 @@ mvn install
 
 2.3. Start application
 
-Follow instruction on the step 1.2.
+Follow instructions on the step 1.2.
 
 ###Development with Eclipse IDE
 
