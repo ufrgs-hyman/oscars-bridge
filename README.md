@@ -2,6 +2,16 @@
 
 Module for easy communication with [OSCARS](https://github.com/esnet/oscars) instances.
 
+###Usage
+
+####Option 1: Download builded JAR file
+
+#####Step 1: Download builded JAR
+
+Download from [here](http://meican-cipo.inf.ufrgs.br/playground/oscars-bridge-2.0.1.jar)
+
+####Option 2: Build your JAR from source
+
 ###Requirements
 
 - Java 1.6+
@@ -17,7 +27,7 @@ mvn install:install-file -Dfile=oscars-client-0.0.1-SNAPSHOT.jar -DgroupId=net.e
 mvn install:install-file -Dfile=common-soap-0.0.1-SNAPSHOT.jar -DgroupId=net.es.oscars -Dversion=0.0.1-SNAPSHOT -DartifactId=common-soap -Dpackaging=jar -DgeneratePom=true
 ```
 
-####Usage
+###Build
 
 Build the application:
 
