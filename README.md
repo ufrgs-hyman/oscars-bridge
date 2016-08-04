@@ -1,14 +1,14 @@
-###OSCARS Bridge
+##OSCARS Bridge
 
 Module for easy communication with [OSCARS](https://github.com/esnet/oscars) instances.
 
-####Requirements
+###Requirements
 
 - Java 1.6+
 - Maven 2+
 - OSCARS libs
 
-####Required OSCARS libs 
+###Required OSCARS libs 
 
 Currently that step is manual, enter the lib folder from the project root and execute:
 
@@ -39,7 +39,7 @@ Starting the app in background:
 java -jar target/oscars-bridge-2.0.1.jar --url=https://localhost:9001/OSCARS/ --ok=oscars.jks --ou=user --op=pass --lk=localhost.jks --lp=pass > /var/log/bridge.log 2>&1 &
 ```
 
-#####Application required parameters
+####Application required parameters
 
 - ok - OSCARS Keystore
 - ou - OSCARS Keystore user
@@ -47,7 +47,7 @@ java -jar target/oscars-bridge-2.0.1.jar --url=https://localhost:9001/OSCARS/ --
 - lk - localhost Keystore
 - lp - localhost Keystore password
 
-####Development with Eclipse IDE
+###Development with Eclipse IDE
 
 After Java and Maven setup, simply execute:
 
