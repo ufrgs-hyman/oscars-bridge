@@ -18,7 +18,7 @@ java -jar oscars-bridge-2.0.1.jar --url=https://localhost:9001/OSCARS/ --ok=/pat
 
 Application required parameters
 
-- url - OSCARS instance endpoint
+- url - OSCARS instance web service
 - ok - full path to OSCARS Keystore
 - ou - OSCARS Keystore user
 - op - OSCARS Keystore password
