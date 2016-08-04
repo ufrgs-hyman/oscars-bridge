@@ -2,7 +2,7 @@
 
 Module for easy communication with [OSCARS](https://github.com/esnet/oscars) instances.
 
-###Usage
+###Installation
 
 ####Option 1: Download builded JAR file
 
