@@ -54,6 +54,10 @@ mvn install
 
 Follow instructions on the step 1.2.
 
+###Usage
+
+Access http://localhost:8080/oscars-bridge/circuits to get all current or future circuits from the configured OSCARS instance in JSON format.
+
 ###Development with Eclipse IDE
 
 After Java and Maven setup, simply execute:
