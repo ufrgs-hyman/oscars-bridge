@@ -1,6 +1,6 @@
 ##OSCARS Bridge
 
-Module for easy communication with [OSCARS](https://github.com/esnet/oscars) instances.
+REST application for easy communication with the [ESnet OSCARS IDC](https://github.com/esnet/oscars) instances.
 
 ###Installation
 
