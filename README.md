@@ -6,6 +6,10 @@ REST application for easy communication with the [ESnet OSCARS IDC](https://gith
 
 ####Option 1: Download builded JAR file
 
+Requirements for installation
+
+- Java 1.6+
+
 1.1. Download builded JAR from [here](http://meican-cipo.inf.ufrgs.br/playground/oscars-bridge-2.0.1.jar)
 
 1.2. Start the application
