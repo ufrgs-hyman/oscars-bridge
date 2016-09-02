@@ -29,7 +29,12 @@ Application required parameters
 - lk - full path to localhost Keystore
 - lp - localhost Keystore password
 
-Access http://localhost:8080/oscars-bridge/circuits to get all active or future circuits from the configured OSCARS instance in JSON format.
+1.3. Check installation
+
+Access http://localhost:8080/oscars-bridge/circuits and check your OSCARS circuits in JSON format or a simple empty array (meaning you dont have future or active circuits):
+```
+[]
+```
 
 ####Option 2: Build your JAR from source
 
